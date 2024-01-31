@@ -4,7 +4,7 @@ import GameBoard from './gameBoard';
 import Player from './player';
 import AIPlayer from './aiPlayer';
 
-export default function game() {
+export default function game() { // controls game loop - pubsub -> respond to dom initialized gameboard message from domRender.js
   console.log('Begining game() function');
 
   const gameBoard1 = new GameBoard();
