@@ -1,0 +1,95 @@
+:root {
+  --board-cell-size: 48px;
+  --boards-gap-size: 64px;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: serif, system-ui;
+  background-color: aliceblue;
+  min-height: 100svh;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  gap: var(--boards-gap-size);
+}
+
+.board-container {
+  padding: 8px;
+}
+
+
+.board-left,
+.board-right {
+  display: grid;
+  aspect-ratio: 1/1;
+  grid-template-columns: repeat(11, var(--board-cell-size));
+  grid-template-rows: repeat(11, var(--board-cell-size));
+}
+
+.board-name {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.25em;
+
+}
+
+[data-target-active="true"] {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: 1px solid black; */
+  /* flex-wrap: wrap; */
+}
+
+.square:not(.header):not(.side-header) {
+  outline: 1px solid black;
+  margin: 1.24px;
+}
+
+.board-container-header {
+  grid-column: 1/12;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(10, var(--board-cell-size));
+}
+
+.board-container-side-header {
+  grid-column: 1/2;
+  grid-row: 2/12;
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-rows: repeat(10, var(--board-cell-size));
+  justify-items: end;
+}
+
+.square.header,
+.square.side-header {
+  font-size: 1.25em;
+  font-weight: 500;
+}
+
+.square.header {
+  align-items: end;
+  padding: 4px;
+}
+
+.square.side-header {
+  padding: 8px;
+}

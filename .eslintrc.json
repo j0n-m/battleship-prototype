@@ -9,5 +9,8 @@
         "sourceType": "module"
     },
     "rules": {
+        "no-plusplus": "warn",
+        "max-len": "warn",
+        "prefer-const": "warn"
     }
 }

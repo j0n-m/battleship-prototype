@@ -1,8 +1,7 @@
 export default class Ship {
-  constructor(length, hitCount = 0, alive = true) {
+  constructor(length, hitCount = 0) {
     this.length = length;
     this.hitCount = hitCount;
-    this.alive = alive;
   }
 
   getLength() {
