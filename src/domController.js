@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable prefer-arrow-callback */
 /* eslint-disable no-unused-vars */
 import * as game from './gameController';
 import pubSub from './pubSub';
@@ -14,6 +16,9 @@ let boardTurn = boardTurnQueue.shift();
 boardTurn.style.pointerEvents = 'none';
 // Functions
 // render player 1 and player 2 boards with
+function prepareRoundCB(e) {
+  prepareRound(e.target);
+}
 export function renderGameBoardHeader(size, boardLeft, boardRight) {
   const boardLeftSideHeaderContainer = boardLeft.querySelector('.board-container-side-header');
   const boardLeftHeaderContainer = boardLeft.querySelector('.board-container-header');
@@ -89,7 +94,11 @@ const prepareRound = (element) => {
   const coords = [Number(element.dataset.x), Number(element.dataset.y)];
   console.log('opponent board', game.getOppenent().gameBoard);
   game.playRound(coords);
+  // eslint-disable-next-line no-param-reassign
   element.dataset.targetActive = 'false'; // visually will disable the cursor pointer
+  // eslint-disable-next-line prefer-arrow-callback
+  element.removeEventListener('click', prepareRoundCB, true);
+  // console.log('trying to remove eventlistener to', element);
 };
 const setConsole = (str) => {
   gameConsole.textContent = str;
@@ -100,6 +109,18 @@ const gameWin = () => {
   boardTurnQueue[0].style.pointerEvents = 'none';
   setConsole(`${game.getPlayerTurn().getName()} Wins!`);
   // display ending modal
+};
+const renderBoardSquare = ({ coords, status }) => {
+  const board = boardTurnQueue[0];
+  const [x, y] = coords;
+  // eslint-disable-next-line quotes
+  const square = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+  console.log('changing this square', square);
+  if (status) {
+    square.dataset.hit = 'true';
+    return;
+  }
+  square.dataset.hit = 'false';
 };
 const updatePlayerNameBanners = () => {
   const player1Name = game.player1.getName();
@@ -126,14 +147,10 @@ const initializeEventListeners = () => {
   const board1Squares = board1.querySelectorAll('[data-target-active="true"]');
   const board2Squares = board2.querySelectorAll('[data-target-active="true"]');
   board1Squares.forEach((square) => {
-    square.addEventListener('click', (e) => {
-      prepareRound(e.target);
-    });
+    square.addEventListener('click', prepareRoundCB, true);
   });
   board2Squares.forEach((square) => {
-    square.addEventListener('click', (e) => {
-      prepareRound(e.target);
-    });
+    square.addEventListener('click', prepareRoundCB, true);
   });
 };
 export const initialize = () => {
@@ -154,3 +171,4 @@ pubSub.subscribe('playerNameChanged', updatePlayerNameBanners);
 pubSub.subscribe('switchTurns', switchBoardTurn);
 pubSub.subscribe('newConsoleMessage', setConsole);
 pubSub.subscribe('gameWin', gameWin);
+pubSub.subscribe('renderBoardSquare', renderBoardSquare);

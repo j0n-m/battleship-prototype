@@ -52,7 +52,7 @@ p2Ships.forEach((ship) => {
   }
 });
 // After import initializing test:
-console.log('placed ships, example P1 @ [9,0]', player1.gameBoard.board[9][0]);
+console.log('placed ships, example P1 @ [1,1]', player1.gameBoard.board[1][1]);
 
 //* ************************[Game Functions]***********************************//
 export const getPlayerTurn = () => playerTurn;
@@ -117,6 +117,7 @@ export const playRound = async (coords) => {
   const consoleMessage = (!response.status) ? `${player.getName()} MISS @ ${mappedCoords}` : `${player.getName()} HIT @ index ${mappedCoords}`;
   console.log(consoleMessage);
   pubSub.publish('newConsoleMessage', consoleMessage);
+  pubSub.publish('renderBoardSquare', response);
   // check if all ships down
   if (opponent.gameBoard.isAllShipsSunk()) {
     console.log(`~~~~~~~STOP GAME, ${player.getName()}  WINS ~~~~~~~`);
@@ -125,12 +126,55 @@ export const playRound = async (coords) => {
   }
   // switch turns;
   await sleep(2000); // 2 second delay before switching rounds;
+
   switchPlayerTurn();
+
   if (getPlayerTurn() instanceof AIPlayer) {
-    let generatedCoords = generateCoords();
+    const aiMove = getAINextHit();
+    playRound(aiMove);
+  }
+};
+function getAINextHit() {
+  // let generatedCoords = generateCoords();
+  let generatedCoords = [1, 1];
+  const [x, y] = generatedCoords;
+  // with coords, needs to check if the coords has been used (missed & hits)
+  // have a history field for all successful attacks (hit or miss)?
+  if (isAHit(x, y)) {
+    console.log('inside if');
+    const moveset = [
+      [x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1],
+    ];
+    const possibleMoveset = moveset.filter((arr) => {
+      const [arrX, arrY] = arr;
+      return (isWithinBoard(arrX, arrY) && !isDuplicateMissCoords(arr));
+    });
+    console.table('filtered moveset', possibleMoveset);
+    while (possibleMoveset.length !== 0) {
+      getPlayerTurn().nextMoves.push(possibleMoveset.shift());
+    }
+    console.table('ai moves', getPlayerTurn().nextMoves);
+    return [x, y];
+  }
+
+  if (!getPlayerTurn().nextMoves.length) {
     while (isDuplicateMissCoords(generatedCoords)) {
       generatedCoords = generateCoords();
     }
-    playRound(generateCoords());
+    console.log('generatedCoords', generatedCoords);
+    return generatedCoords;
   }
-};
+}
+function isAHit(aiX, aiY) {
+  // AI needs to pre-check if there was a ship at coords in player1's board
+  if (player1.gameBoard.board[aiX][aiY] instanceof Ship) {
+    return true;
+  }
+  return false;
+}
+function isWithinBoard(x, y) {
+  if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
+    return true;
+  }
+  return false;
+}

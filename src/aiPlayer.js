@@ -3,6 +3,7 @@ export default class AIPlayer {
   constructor(GameBoard) {
     this.name = 'Computer';
     this.gameBoard = GameBoard;
+    this.nextMoves = [];
   }
 
   sendAttack(opponent, coords) {

@@ -61,10 +61,20 @@ body {
 }
 
 [data-target-active="true"] {
+  background-color: lightblue;
+
   &:hover {
     cursor: pointer;
     background-color: lightseagreen;
   }
+}
+
+[data-hit="true"] {
+  background-color: lightcoral;
+}
+
+[data-hit="false"] {
+  background-color: gray;
 }
 
 
@@ -72,6 +82,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
   /* border: 1px solid black; */
   /* flex-wrap: wrap; */
 }
