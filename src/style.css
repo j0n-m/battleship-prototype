@@ -17,6 +17,20 @@ body {
   min-height: 100svh;
 }
 
+.page-heading {
+  text-align: center;
+  font-size: 2.5em;
+  letter-spacing: 2px;
+  background-color: pink;
+}
+
+.page-console {
+  text-align: center;
+  background-color: aquamarine;
+  font-size: 1.5em;
+  padding: 1em;
+}
+
 .main {
   display: flex;
   justify-content: center;
@@ -25,7 +39,9 @@ body {
 
 .board-container {
   padding: 8px;
+  position: relative;
 }
+
 
 
 .board-left,

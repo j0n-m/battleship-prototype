@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable no-plusplus */
 export default class GameBoard {
   constructor() {
@@ -34,6 +35,7 @@ export default class GameBoard {
   receiveAttack(coords) {
     // eslint-disable-next-line max-len
     // determines whether or not the attack hit a ship and then sends the ‘hit’ function to the correct ship, or records the coordinates of the missed shot.
+
     const [x, y] = coords;
     const ship = this.board[x][y];
     if (ship == null) {
@@ -50,13 +52,5 @@ export default class GameBoard {
       return true;
     }
     return false;
-  }
-
-  // AI methods
-  // eslint-disable-next-line class-methods-use-this
-  generateCoords() {
-    const x = Math.random() * 10; // bound to game board size of 10
-    const y = Math.random() * 10;
-    return [x, y];
   }
 }

@@ -1,10 +1,4 @@
 import './style.css';
-import game from './gameController';
-import renderGameBoard from './domRender';
+import { initialize } from './domController';
 
-game(); // initializes game logic section
-renderGameBoard(); // initializes game board
-// initialize DOM event listeners -> package with DomRenderjs?
-
-// most interactions will be:
-// domRenderer(events) <-> PubSub <-> gameController/classes
+initialize(); // initializes game board

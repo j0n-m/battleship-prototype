@@ -5,11 +5,19 @@ export default class Player {
     this.gameBoard = GameBoard;
   }
 
-  sendAttack(coords, PlayerObj) {
-    const status = PlayerObj.gameBoard.recieveAttack(coords);
-    if (status) {
-      return coords;
+  sendAttack(opponent, coords) {
+    const response = opponent.gameBoard.receiveAttack(coords);
+    if (response) {
+      return { coords, status: true };
     }
-    return status;
+    return { coords, status: false };
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  setName(newName) {
+    this.name = newName;
   }
 }
