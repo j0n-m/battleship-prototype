@@ -146,7 +146,7 @@ export const initialize = () => {
   // show modal -> selects if PvP or PvC, then select names, then select ship positions
   // process the data from modal
   // update console on instructions
-  game.setPlayerName(game.player1, 'anoo');
+  game.setPlayerName(game.player1, 'Big One');
   setConsole(`${game.getPlayerTurn().getName()}'s turn.`);
 };
 // Any Event listeners that need to be initialize before initilize() is set below

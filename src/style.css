@@ -63,8 +63,10 @@ body {
 [data-target-active="true"] {
   &:hover {
     cursor: pointer;
+    background-color: lightseagreen;
   }
 }
+
 
 .square {
   display: flex;

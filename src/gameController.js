@@ -126,7 +126,11 @@ export const playRound = async (coords) => {
   // switch turns;
   await sleep(2000); // 2 second delay before switching rounds;
   switchPlayerTurn();
-  while (getPlayerTurn() instanceof AIPlayer) {
+  if (getPlayerTurn() instanceof AIPlayer) {
+    let generatedCoords = generateCoords();
+    while (isDuplicateMissCoords(generatedCoords)) {
+      generatedCoords = generateCoords();
+    }
     playRound(generateCoords());
   }
 };
