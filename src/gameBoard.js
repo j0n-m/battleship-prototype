@@ -3,6 +3,8 @@
 export default class GameBoard {
   constructor() {
     this.missedHits = []; // values are arrays of coords : [x,y]
+    this.nextMoves = [];
+    this.history = [];
     this.board = this.createBoard();
     this.totalShipHits = 0;
     this.totalShipsLength = 0;
@@ -40,8 +42,10 @@ export default class GameBoard {
     const ship = this.board[x][y];
     if (ship == null) {
       this.missedHits.push(coords);
+      this.history.push(coords);
       return false;
     }
+    this.history.push(coords);
     ship.hit();
     this.totalShipHits += 1;
     return true;

@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable radix */
 /* eslint-disable max-len */
 import Ship from './ship';
@@ -25,7 +26,7 @@ let playerTurn = playerQueue.shift();
 // create 3 ships for each player
 // const p1Ships = [new Ship(3), new Ship(3), new Ship(4)];
 // const p2Ships = [new Ship(3), new Ship(3), new Ship(4)];
-const p1Ships = [new Ship(3)];
+const p1Ships = [new Ship(3), new Ship(3)];
 const p2Ships = [new Ship(3)];
 
 // TEMP - pre-determined coords for ship placement
@@ -89,6 +90,51 @@ const mapIndexToPlayer = (coords) => {
 const gameEnd = () => {
   pubSub.publish('gameWin');
 };
+function setAINextMoves(x, y) {
+  const moveset = [
+    [x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1],
+  ];
+  const possibleMoveset = moveset.filter((arr) => {
+    const [arrX, arrY] = arr;
+    return (isWithinBoard(arrX, arrY) && !isDuplicateMove(arr));
+  });
+  while (possibleMoveset.length !== 0) {
+    const move = possibleMoveset.shift();
+    console.log(`adding ${move} to ${getPlayerTurn().getName()}'s next moves`);
+    getPlayerTurn().gameBoard.nextMoves.push(move);
+  }
+}
+function isDuplicateMove(coords) {
+  // searches opponents board for history of attacks
+  const boardHistory = getOppenent().gameBoard.history;
+  const [origX, origY] = coords;
+  // origX = Number(origX);
+  // origY = Number(origY);
+  return boardHistory.find((attackedCoords) => {
+    const [eX, eY] = attackedCoords;
+    return (eX === origX && eY === origY);
+  });
+}
+export function isAHit(aiX, aiY) { // AI function
+  // AI needs to pre-check if there was a ship at coords in player1's board
+  if (player1.gameBoard.board[aiX][aiY] instanceof Ship) {
+    return true;
+  }
+  return false;
+}
+export function isAHitP(aiX, aiY, player) { // AI function
+  // AI needs to pre-check if there was a ship at coords in player1's board
+  if (player.gameBoard.board[aiX][aiY] instanceof Ship) {
+    return true;
+  }
+  return false;
+}
+function isWithinBoard(x, y) {
+  if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
+    return true;
+  }
+  return false;
+}
 export const isDuplicateMissCoords = (coords) => {
   const [origX, origY] = coords;
   const opponent = getOppenent();
@@ -98,11 +144,36 @@ export const isDuplicateMissCoords = (coords) => {
     return (x === origX && y === origY);
   });
 };
-export const generateCoords = () => {
+export const getRandomCoords = () => {
   const x = parseInt(Math.random() * 10); // bound to game board size of 10
   const y = parseInt(Math.random() * 10);
   return [x, y];
 };
+function getAINextHit() {
+  // let generatedCoords = getRandomCoords();
+  let randomCoords = getRandomCoords();
+  const aiNextMovesArr = getPlayerTurn().gameBoard.nextMoves;
+
+  if (aiNextMovesArr.length) {
+    // reassigns randomCoords to use nextMoves set
+    randomCoords = aiNextMovesArr.shift();
+  }
+  // check if random coords are fresh, unused coords;
+  while (isDuplicateMove(randomCoords)) {
+    // reassigns randomCoords if its a duplicate attack;
+    randomCoords = getRandomCoords();
+  }
+  // the random coords are fresh
+  // AI LOGIC BELOW
+  const [x, y] = randomCoords;
+  if (isAHit(x, y)) {
+    // if coords hit a ship, return that coord and add surrounding coords to next moves array
+    setAINextMoves(x, y); // adds surround non duplicated coords to next moves array
+    return randomCoords;
+  }
+
+  return randomCoords;
+}
 export const playRound = async (coords) => {
   // attack opponent
   const player = getPlayerTurn();
@@ -134,47 +205,3 @@ export const playRound = async (coords) => {
     playRound(aiMove);
   }
 };
-function getAINextHit() {
-  // let generatedCoords = generateCoords();
-  let generatedCoords = [1, 1];
-  const [x, y] = generatedCoords;
-  // with coords, needs to check if the coords has been used (missed & hits)
-  // have a history field for all successful attacks (hit or miss)?
-  if (isAHit(x, y)) {
-    console.log('inside if');
-    const moveset = [
-      [x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1],
-    ];
-    const possibleMoveset = moveset.filter((arr) => {
-      const [arrX, arrY] = arr;
-      return (isWithinBoard(arrX, arrY) && !isDuplicateMissCoords(arr));
-    });
-    console.table('filtered moveset', possibleMoveset);
-    while (possibleMoveset.length !== 0) {
-      getPlayerTurn().nextMoves.push(possibleMoveset.shift());
-    }
-    console.table('ai moves', getPlayerTurn().nextMoves);
-    return [x, y];
-  }
-
-  if (!getPlayerTurn().nextMoves.length) {
-    while (isDuplicateMissCoords(generatedCoords)) {
-      generatedCoords = generateCoords();
-    }
-    console.log('generatedCoords', generatedCoords);
-    return generatedCoords;
-  }
-}
-function isAHit(aiX, aiY) {
-  // AI needs to pre-check if there was a ship at coords in player1's board
-  if (player1.gameBoard.board[aiX][aiY] instanceof Ship) {
-    return true;
-  }
-  return false;
-}
-function isWithinBoard(x, y) {
-  if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
-    return true;
-  }
-  return false;
-}

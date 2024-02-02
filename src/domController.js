@@ -1,11 +1,13 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable no-unused-vars */
+import AIPlayer from './aiPlayer';
 import * as game from './gameController';
 import pubSub from './pubSub';
 
 console.log('domController Initialized');
 // Variables set here
+const devMode = true;
 const gameConsole = document.querySelector('[data-console]');
 const board1 = document.querySelector('[data-board-1]');
 const board2 = document.querySelector('[data-board-2]');
@@ -57,13 +59,18 @@ export function renderGameBoardHeader(size, boardLeft, boardRight) {
   }
 }
 export function renderGameBoardBody({ size, boardLeft, boardRight }) {
+  console.log('DEVMODE IS ON, SHOWING ALL SHIPS ON GAMEBOARD');
   for (let row = 0; row < size; row++) { // row - x index
     for (let col = 0; col < size; col++) { // column - y index
       const square = document.createElement('div');
       const squareDup = square.cloneNode();
+      if (devMode) {
+        square.textContent = (game.isAHitP(row, col, game.player1)) ? 'Ship' : '';
 
-      square.textContent = 'null';
-      squareDup.textContent = 'null';
+        squareDup.textContent = (game.isAHitP(row, col, game.player2)) ? 'Ship' : '';
+      } else {
+        square.textContent = (game.isAHitP(row, col, game.player1)) ? 'Ship' : '';
+      }
 
       square.classList.add('square');
       squareDup.classList.add('square');
