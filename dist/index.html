@@ -11,6 +11,19 @@
   <div class="page-heading">BattleShip</div>
   <div data-console class="page-console">console test</div>
   <div class="main">
+    <dialog id="end-game-modal">
+      <div class="end-game-modal-container">
+        <div class="end-game-modal-header">
+          Game Over
+        </div>
+        <div class="end-game-modal-body">
+          <div class="end-game-modal-text">Maybe Player1 won!</div>
+          <form id="endGameForm">
+            <input type="submit" value="Restart" autofocus>
+          </form>
+        </div>
+      </div>
+    </dialog>
     <div class="board-container">
       <!-- <div data-show="false" class="board-left-overlay"></div> -->
       <div class="board-name">Player 1</div>

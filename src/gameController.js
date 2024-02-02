@@ -27,7 +27,7 @@ let playerTurn = playerQueue.shift();
 // const p1Ships = [new Ship(3), new Ship(3), new Ship(4)];
 // const p2Ships = [new Ship(3), new Ship(3), new Ship(4)];
 const p1Ships = [new Ship(3), new Ship(3)];
-const p2Ships = [new Ship(3)];
+const p2Ships = [new Ship(3), new Ship(3)];
 
 // TEMP - pre-determined coords for ship placement
 const p1ShipCoords = [[1, 1], [2, 1], [3, 1], [2, 3], [2, 4], [2, 5], [9, 0], [9, 1], [9, 2], [9, 3]];
@@ -53,7 +53,7 @@ p2Ships.forEach((ship) => {
   }
 });
 // After import initializing test:
-console.log('placed ships, example P1 @ [1,1]', player1.gameBoard.board[1][1]);
+// console.log('placed ships, example P1 @ [1,1]', player1.gameBoard.board[1][1]);
 
 //* ************************[Game Functions]***********************************//
 export const getPlayerTurn = () => playerTurn;
@@ -88,6 +88,7 @@ const mapIndexToPlayer = (coords) => {
   return `[${mapX.get(x)}${y + 1}]`;
 };
 const gameEnd = () => {
+  console.log(`~~~~~~~GAME OVER, ${getPlayerTurn().getName()}  WINS ~~~~~~~`);
   pubSub.publish('gameWin');
 };
 function setAINextMoves(x, y) {
@@ -191,7 +192,6 @@ export const playRound = async (coords) => {
   pubSub.publish('renderBoardSquare', response);
   // check if all ships down
   if (opponent.gameBoard.isAllShipsSunk()) {
-    console.log(`~~~~~~~STOP GAME, ${player.getName()}  WINS ~~~~~~~`);
     gameEnd();
     return;
   }

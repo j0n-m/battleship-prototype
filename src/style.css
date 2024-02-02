@@ -1,5 +1,5 @@
 :root {
-  --board-cell-size: 48px;
+  --board-cell-size: 44px;
   --boards-gap-size: 64px;
 }
 
@@ -15,6 +15,22 @@ body {
   font-family: serif, system-ui;
   background-color: aliceblue;
   min-height: 100svh;
+}
+
+dialog {
+  position: fixed;
+  text-align: center;
+  top: 40%;
+  left: 50%;
+  translate: -50% -50%;
+  background-color: rgb(176, 248, 255);
+  border-radius: 1em;
+  width: 750px;
+  max-width: 900px;
+  height: 200px;
+  border: none;
+  outline: 2px solid white;
+  font-size: 1.5rem;
 }
 
 .page-heading {
@@ -121,4 +137,29 @@ body {
 
 .square.side-header {
   padding: 8px;
+}
+
+.end-game-modal-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.end-game-modal-header {
+  font-size: 2rem;
+}
+
+.end-game-modal-body {
+  height: 100%;
+  padding: 1rem;
+}
+
+.end-game-modal-text {
+  padding-bottom: 1.5rem;
+}
+
+.end-game-modal-body input[type="submit"] {
+  height: 30px;
+  width: 100px
 }

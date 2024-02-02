@@ -12,6 +12,9 @@ const gameConsole = document.querySelector('[data-console]');
 const board1 = document.querySelector('[data-board-1]');
 const board2 = document.querySelector('[data-board-2]');
 const boardTurnQueue = [];
+const endGameModal = document.getElementById('end-game-modal');
+const endGameForm = document.getElementById('endGameForm');
+// endGameModal.showModal();
 boardTurnQueue.push(board1, board2);
 
 let boardTurn = boardTurnQueue.shift();
@@ -116,6 +119,9 @@ const gameWin = () => {
   boardTurnQueue[0].style.pointerEvents = 'none';
   setConsole(`${game.getPlayerTurn().getName()} Wins!`);
   // display ending modal
+  const endGameModalText = endGameModal.querySelector('.end-game-modal-text');
+  endGameModalText.textContent = `${game.getPlayerTurn().getName()} Won The Game!`;
+  endGameModal.showModal();
 };
 const renderBoardSquare = ({ coords, status }) => {
   const board = boardTurnQueue[0];
@@ -158,6 +164,10 @@ const initializeEventListeners = () => {
   });
   board2Squares.forEach((square) => {
     square.addEventListener('click', prepareRoundCB, true);
+  });
+  endGameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.location.reload();
   });
 };
 export const initialize = () => {
