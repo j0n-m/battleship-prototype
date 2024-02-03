@@ -7,7 +7,7 @@ import pubSub from './pubSub';
 
 console.log('domController Initialized');
 // Variables set here
-const devMode = true;
+const devMode = false;
 // eslint-disable-next-line prefer-const
 let isShipsHorizontal = true;
 // const shipLength = game.testP1Ships[0]?.getLength() ?? 0;
