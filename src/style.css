@@ -1,6 +1,7 @@
 :root {
   --board-cell-size: 44px;
   --boards-gap-size: 64px;
+  --place-ship-board-cell-size: 25px;
 }
 
 *,
@@ -17,6 +18,11 @@ body {
   min-height: 100svh;
 }
 
+body:has(dialog[open]) {
+  overflow: hidden;
+  filter: blur(2px)
+}
+
 dialog {
   position: fixed;
   text-align: center;
@@ -27,10 +33,17 @@ dialog {
   border-radius: 1em;
   width: 750px;
   max-width: 900px;
-  height: 200px;
+  min-height: 200px;
+  max-height: 450px;
+  /* height: 200px; */
   border: none;
   outline: 2px solid white;
   font-size: 1.5rem;
+  z-index: 2;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, .5);
 }
 
 .page-heading {
@@ -124,6 +137,16 @@ dialog {
   justify-items: end;
 }
 
+.placeShipsBoard {
+  display: grid;
+  grid-template-columns: repeat(11, var(--place-ship-board-cell-size));
+  grid-template-rows: repeat(11, var(--place-ship-board-cell-size));
+  height: 100%;
+  width: max-content;
+  margin: 0 auto;
+  font-size: 20px;
+}
+
 .square.header,
 .square.side-header {
   font-size: 1.25em;
@@ -142,15 +165,21 @@ dialog {
 .end-game-modal-container {
   display: flex;
   flex-direction: column;
+}
+
+.modal-container {
   padding: 1.5rem;
+  padding-bottom: 1rem;
   height: 100%;
 }
 
-.end-game-modal-header {
+.end-game-modal-header,
+.modal-header {
   font-size: 2rem;
 }
 
-.end-game-modal-body {
+.end-game-modal-body,
+.modal-body {
   height: 100%;
   padding: 1rem;
 }
@@ -162,4 +191,74 @@ dialog {
 .end-game-modal-body input[type="submit"] {
   height: 30px;
   width: 100px
+}
+
+/* dialog#place-ships-modal {
+  height: 100%;
+} */
+
+
+.pSquareHeader {
+  grid-row: 1/2;
+  grid-column: 1/12;
+  display: grid;
+  grid-template-columns: repeat(11, var(--place-ship-board-cell-size));
+  gap: 1px;
+}
+
+.pSquareSideHeader {
+  grid-column: 1/2;
+  grid-row: 2/12;
+  display: grid;
+  grid-template-rows: repeat(10, var(--place-ship-board-cell-size));
+}
+
+.ph-square,
+.psh-square {
+  aspect-ratio: 1/1;
+}
+
+.pSquare {
+  user-select: none;
+  border: 1px solid black;
+}
+
+/* .hover-preview-no {
+  background-color: lightcoral;
+  z-index: 100;
+} */
+
+.placed {
+  background-color: midnightblue;
+  /* pointer-events: none; */
+}
+
+.hover-preview {
+  background-color: rgb(224, 224, 224);
+}
+
+form#choosePlayerNameForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 250px;
+  margin: 0 auto;
+  align-items: center;
+  height: 100%;
+}
+
+form #playerNameInputBox {
+  height: 30px;
+  font-size: 1.25rem;
+  padding: .5rem .25rem;
+  text-align: center;
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  box-shadow: 0px 0px 8px;
+}
+
+form #playerNameModalContinueBtn {
+  margin-top: auto;
+  min-height: 30px;
+  width: 16ch;
 }

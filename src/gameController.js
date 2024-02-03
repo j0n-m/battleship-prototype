@@ -26,6 +26,7 @@ let playerTurn = playerQueue.shift();
 // create 3 ships for each player
 // const p1Ships = [new Ship(3), new Ship(3), new Ship(4)];
 // const p2Ships = [new Ship(3), new Ship(3), new Ship(4)];
+export const testP1Ships = [new Ship(3), new Ship(3)];
 const p1Ships = [new Ship(3), new Ship(3)];
 const p2Ships = [new Ship(3), new Ship(3)];
 
@@ -67,10 +68,16 @@ export const switchPlayerTurn = () => {
   playerTurn = playerQueue.shift();
   pubSub.publish('switchTurns');
 };
-async function sleep(delay) {
+export async function sleep(delay) {
   // eslint-disable-next-line no-promise-executor-return
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
+export const getPlayer1CurrentShipLength = () => {
+  if (testP1Ships[0]) {
+    return testP1Ships[0].getLength();
+  }
+  return 0;
+};
 const mapIndexToPlayer = (coords) => {
   const [x, y] = coords;
   const mapX = new Map();
@@ -130,7 +137,7 @@ export function isAHitP(aiX, aiY, player) { // AI function
   }
   return false;
 }
-function isWithinBoard(x, y) {
+export function isWithinBoard(x, y) {
   if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
     return true;
   }
