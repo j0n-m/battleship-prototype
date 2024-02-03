@@ -1,3 +1,4 @@
+import pubSub from './pubSub';
 /* eslint-disable radix */
 /* eslint-disable no-plusplus */
 export default class GameBoard {
@@ -32,6 +33,7 @@ export default class GameBoard {
     this.board[x][y] = Ship;
     this.totalShipsLength += 1;// temp variable, assuming each Ship occupying one coordinate is of length 1;
     // this.totalShipsLength += Ship.getLength();
+    pubSub.publish('placedPlayer1Ship', coords);
   }
 
   receiveAttack(coords) {

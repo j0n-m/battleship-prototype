@@ -89,8 +89,9 @@ dialog::backdrop {
 
 }
 
-[data-target-active="true"] {
+[data-target-active="true"]:not(.ship) {
   background-color: lightblue;
+  z-index: 1;
 
   &:hover {
     cursor: pointer;
@@ -98,12 +99,23 @@ dialog::backdrop {
   }
 }
 
-[data-hit="true"] {
-  background-color: lightcoral;
+[data-target-active="true"].ship {
+  background-color: rgb(43, 170, 255);
+
+  &:hover {
+    cursor: pointer;
+    background-color: lightseagreen;
+  }
 }
 
 [data-hit="false"] {
-  background-color: gray;
+  background-color: gray !important;
+  z-index: 100;
+}
+
+[data-hit="true"] {
+  background-color: rgb(255, 69, 69) !important;
+  z-index: 10;
 }
 
 
@@ -115,6 +127,11 @@ dialog::backdrop {
   /* border: 1px solid black; */
   /* flex-wrap: wrap; */
 }
+
+/* .square .ship {
+  background-color: blueviolet;
+  z-index: 10;
+} */
 
 .square:not(.header):not(.side-header) {
   outline: 1px solid black;
@@ -180,6 +197,7 @@ dialog::backdrop {
 
 .end-game-modal-body,
 .modal-body {
+  position: relative;
   height: 100%;
   padding: 1rem;
 }
@@ -258,7 +276,36 @@ form #playerNameInputBox {
 }
 
 form #playerNameModalContinueBtn {
-  margin-top: auto;
+  margin-top: 20px;
   min-height: 30px;
   width: 16ch;
+}
+
+
+#place-ships-modal input[type="submit"] {
+  width: 100px;
+  height: 30px;
+  margin-top: 20px;
+}
+
+#rotate-Ship-Btn {
+  position: absolute;
+  left: 22%;
+  top: 40%;
+  height: 40px;
+  width: 50px;
+  user-select: none;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 0 3px gray;
+  /* outline: none; */
+
+}
+
+#rotate-Ship-Btn:hover {
+  background-color: rgb(255, 186, 186);
+}
+
+#rotate-Ship-Btn:active {
+  background-color: lightcoral;
 }

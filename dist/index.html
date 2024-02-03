@@ -9,14 +9,14 @@
 
 <body>
   <div class="page-heading">BattleShip</div>
-  <div data-console class="page-console">console test</div>
+  <div data-console class="page-console"></div>
   <div class="main">
     <dialog id="player-name-modal">
       <div class="modal-container">
         <div class="modal-header">Choose your Player Name</div>
         <div class="modal-body">
           <form id="choosePlayerNameForm">
-            <input type="text" id="playerNameInputBox" placeholder="Player 1">
+            <input type="text" id="playerNameInputBox" placeholder="Player 1" name="playerNameInputBox">
             <input type="button" value="Continue" id="playerNameModalContinueBtn">
           </form>
         </div>
@@ -26,9 +26,11 @@
       <div class="modal-container">
         <div class="modal-header">Place your ships</div>
         <div class="modal-body">
+          <button id="rotate-Ship-Btn">Rotate</button>
           <div class="placeShipsBoard">
-
           </div>
+          <input type="submit" form="choosePlayerNameForm" value="Play Game" id="playerChooseSubmitBtn"
+            name="playerChooseBtn">
         </div>
       </div>
     </dialog>

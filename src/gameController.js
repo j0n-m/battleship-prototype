@@ -15,6 +15,8 @@ const gameBoard2 = new GameBoard();
 // create player with default values (can change player name with function)
 export const player1 = new Player('Player 1', gameBoard1);
 export const player2 = new AIPlayer(gameBoard2);
+export const player1PlacedShips = [];
+export const player2PlacedShips = [];
 
 // player turns
 const playerQueue = [];
@@ -26,39 +28,38 @@ let playerTurn = playerQueue.shift();
 // create 3 ships for each player
 // const p1Ships = [new Ship(3), new Ship(3), new Ship(4)];
 // const p2Ships = [new Ship(3), new Ship(3), new Ship(4)];
-export const testP1Ships = [new Ship(3), new Ship(3)];
-const p1Ships = [new Ship(3), new Ship(3)];
-const p2Ships = [new Ship(3), new Ship(3)];
+// export const testP1Ships = [new Ship(3)];
+export const p1Ships = [new Ship(5), new Ship(4), new Ship(3), new Ship(3), new Ship(2)];
+export const p2Ships = [new Ship(5), new Ship(4), new Ship(3), new Ship(3), new Ship(2)];
 
 // TEMP - pre-determined coords for ship placement
-const p1ShipCoords = [[1, 1], [2, 1], [3, 1], [2, 3], [2, 4], [2, 5], [9, 0], [9, 1], [9, 2], [9, 3]];
-const p2ShipCoords = [[5, 0], [5, 1], [5, 2], [7, 0], [7, 1], [7, 2], [6, 5], [7, 5], [8, 5], [9, 5]];
+// const p1ShipCoords = [[1, 1], [2, 1], [3, 1], [2, 3], [2, 4], [2, 5], [9, 0], [9, 1], [9, 2], [9, 3]];
+// const p2ShipCoords = [[5, 0], [5, 1], [5, 2], [7, 0], [7, 1], [7, 2], [6, 5], [7, 5], [8, 5], [9, 5]];
+setAIShipPlacements();
+// console.log('AI board:', player2.gameBoard.board);
+// p2Ships.forEach((ship) => {
+//   for (let i = 0; i < ship.getLength(); i++) {
+//     if (p2ShipCoords.length === 0) {
+//       console.log('p2ShipCoords is empty, returning');
+//       return;
+//     }
+//     player2.gameBoard.placeShip(p2ShipCoords.shift(), ship);
+//   }
+// });
+// const currentP2Ship = player2PlacedShips.shift();
+// p2ShipCoords.forEach((shipCoords) => {
+//   player2.gameBoard.placeShip(shipCoords, currentP2Ship);
+// });
+// console.log('checking opponents ships [hits to shipLength]:', getOppenent().gameBoard.totalShipHits, getOppenent().gameBoard.totalShipsLength);
 
-// place the ship at each coord from the array above.
-p1Ships.forEach((ship) => {
-  for (let i = 0; i < ship.getLength(); i++) {
-    if (p1ShipCoords.length === 0) {
-      console.log('p1ShipCoords is empty, returning');
-      return;
-    }
-    player1.gameBoard.placeShip(p1ShipCoords.shift(), ship);
-  }
-});
-p2Ships.forEach((ship) => {
-  for (let i = 0; i < ship.getLength(); i++) {
-    if (p2ShipCoords.length === 0) {
-      console.log('p2ShipCoords is empty, returning');
-      return;
-    }
-    player2.gameBoard.placeShip(p2ShipCoords.shift(), ship);
-  }
-});
 // After import initializing test:
 // console.log('placed ships, example P1 @ [1,1]', player1.gameBoard.board[1][1]);
 
 //* ************************[Game Functions]***********************************//
 export const getPlayerTurn = () => playerTurn;
-export const getOppenent = () => playerQueue[0];
+export function getOppenent() {
+  return playerQueue[0];
+}
 export const setPlayerName = (player, newName) => {
   player.setName(newName);
   pubSub.publish('playerNameChanged');
@@ -73,11 +74,90 @@ export async function sleep(delay) {
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
 export const getPlayer1CurrentShipLength = () => {
-  if (testP1Ships[0]) {
-    return testP1Ships[0].getLength();
+  if (p1Ships[0]) {
+    return p1Ships[0].getLength();
   }
   return 0;
 };
+export function getPlayer2CurrentShipLength() {
+  if (p2Ships[0]) {
+    return p2Ships[0].getLength();
+  }
+  return 0;
+}
+export function isSurrounded(gameboard, coords, anchorLetter, firstCoords = false, lastCoords = false) {
+  // console.log(firstCoords, lastCoords);
+  const [x, y] = coords;
+  const moveset = (anchorLetter === 'x') ? [[x + 1, y], [x - 1, y]] : [[x, y + 1], [x, y - 1]];
+  if (firstCoords && anchorLetter === 'x') {
+    moveset.push([x, y - 1]);
+  } else if (lastCoords && anchorLetter === 'x') {
+    moveset.push([x, y + 1]);
+  }
+  if (firstCoords && anchorLetter === 'y') {
+    moveset.push([x - 1, y]);
+  } else if (lastCoords && anchorLetter === 'y') {
+    moveset.push([x + 1, y]);
+  }
+  // console.log('moveset', moveset);
+  const filterd = moveset.filter((movesetCoord) => {
+    const [newX, newY] = movesetCoord;
+    return isWithinBoard(newX, newY);
+  });
+  return filterd.some((coordinates) => {
+    const [iX, iY] = coordinates;
+    // console.log(`checking if ${iX}, ${iY} is instance of Ship`, gameboard[iX][iY] instanceof Ship);
+    return (gameboard[iX][iY] instanceof Ship);
+  });
+}
+export function setAIShipPlacements() {
+  // get 1 random coord
+  const placementHistory = [];
+  let randomCoord = getRandomCoords();
+  while (isDuplicateMoveOnAIBoard(placementHistory, getRandomCoords())) {
+    randomCoord = getRandomCoords();
+  }
+  // random 1 or 2 to decide if verticle or horizontal
+  // const coordinateSet = [];
+  while (getPlayer2CurrentShipLength()) {
+    let coordinateHistory = [];
+    const [xCoord, yCoord] = randomCoord;
+    const randomCoinFlip = parseInt(Math.random() * 2); // returns 0 or 1
+    const isHorizontal = (randomCoinFlip === 1);
+    const anchorLetter = (isHorizontal) ? 'x' : 'y';
+    const anchorNum = (isHorizontal) ? Number(xCoord) : Number(yCoord);
+    // const oppositeLetter = (anchorLetter === 'x') ? 'y' : 'x';
+    let oppositeNum = (isHorizontal) ? Number(yCoord) : Number(xCoord);
+    for (let i = 0; i < getPlayer2CurrentShipLength(); i++) {
+      // checks if within board and not duplicatemove
+      let firstCoords = false;
+      let lastCoords = false;
+      firstCoords = (i === 0);
+      lastCoords = (i === getPlayer2CurrentShipLength() - 1);
+      const newCoord = (anchorLetter === 'x') ? [anchorNum, oppositeNum] : [oppositeNum, anchorNum];
+      const [newX, newY] = newCoord;
+      if (isWithinBoard(newX, newY) && !isDuplicateMoveOnAIBoard(placementHistory, newCoord) && !isSurrounded(player2.gameBoard.board, newCoord, anchorLetter, firstCoords, lastCoords)) {
+        coordinateHistory.push(newCoord);
+        placementHistory.push(newCoord);
+        oppositeNum++;
+      }
+    }
+    if (coordinateHistory.length !== getPlayer2CurrentShipLength()) {
+      // start over
+      coordinateHistory = [];
+      randomCoord = getRandomCoords();
+    } else {
+      // coordinateSet.push(...coordinateHistory);
+      const currentShip = p2Ships.shift();
+      coordinateHistory.forEach((shipCoords) => {
+        player2.gameBoard.placeShip(shipCoords, currentShip);
+      });
+      player2PlacedShips.push(currentShip);
+      coordinateHistory = [];
+      randomCoord = getRandomCoords();
+    }
+  }
+}
 const mapIndexToPlayer = (coords) => {
   const [x, y] = coords;
   const mapX = new Map();
@@ -95,7 +175,7 @@ const mapIndexToPlayer = (coords) => {
   return `[${mapX.get(x)}${y + 1}]`;
 };
 const gameEnd = () => {
-  console.log(`~~~~~~~GAME OVER, ${getPlayerTurn().getName()}  WINS ~~~~~~~`);
+  console.log(`~~~~~~~GAME OVER, ${getPlayerTurn().getName()} WINS ~~~~~~~`);
   pubSub.publish('gameWin');
 };
 function setAINextMoves(x, y) {
@@ -119,6 +199,16 @@ function isDuplicateMove(coords) {
   // origX = Number(origX);
   // origY = Number(origY);
   return boardHistory.find((attackedCoords) => {
+    const [eX, eY] = attackedCoords;
+    return (eX === origX && eY === origY);
+  });
+}
+function isDuplicateMoveOnAIBoard(arrSet, coords) {
+  // searches opponents board for history of attacks
+  const [origX, origY] = coords;
+  // origX = Number(origX);
+  // origY = Number(origY);
+  return arrSet.find((attackedCoords) => {
     const [eX, eY] = attackedCoords;
     return (eX === origX && eY === origY);
   });
@@ -152,11 +242,11 @@ export const isDuplicateMissCoords = (coords) => {
     return (x === origX && y === origY);
   });
 };
-export const getRandomCoords = () => {
+export function getRandomCoords() {
   const x = parseInt(Math.random() * 10); // bound to game board size of 10
   const y = parseInt(Math.random() * 10);
   return [x, y];
-};
+}
 function getAINextHit() {
   // let generatedCoords = getRandomCoords();
   let randomCoords = getRandomCoords();
@@ -193,17 +283,22 @@ export const playRound = async (coords) => {
   const response = player.sendAttack(opponent, coords);
   // process response data after attack
   const mappedCoords = mapIndexToPlayer(response.coords);
-  const consoleMessage = (!response.status) ? `${player.getName()} MISS @ ${mappedCoords}` : `${player.getName()} HIT @ index ${mappedCoords}`;
+  let consoleMessage = (!response.status) ? `${player.getName()} MISS at ${mappedCoords}` : `${player.getName()} HIT at ${mappedCoords}`;
   console.log(consoleMessage);
+  if (getOppenent().gameBoard.board[coords[0]][coords[1]]) {
+    consoleMessage = (getOppenent().gameBoard.board[coords[0]][coords[1]].isSunk()) ? `You HIT the Ship at ${mappedCoords} and it Sunk!` : consoleMessage;
+    console.log('You sunk the ship!');
+  }
   pubSub.publish('newConsoleMessage', consoleMessage);
   pubSub.publish('renderBoardSquare', response);
   // check if all ships down
+  // console.log('checking opponents ships [hits to shipLength]:', opponent.gameBoard.totalShipHits, opponent.gameBoard.totalShipsLength);
   if (opponent.gameBoard.isAllShipsSunk()) {
     gameEnd();
     return;
   }
   // switch turns;
-  await sleep(2000); // 2 second delay before switching rounds;
+  await sleep(1500); // miliseconds delay before switching rounds;
 
   switchPlayerTurn();
 
@@ -212,3 +307,6 @@ export const playRound = async (coords) => {
     playRound(aiMove);
   }
 };
+pubSub.subscribe('placedPlayer1Ship', (c) => {
+  player1PlacedShips.push(c);
+});

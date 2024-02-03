@@ -16,14 +16,17 @@ const gameConsole = document.querySelector('[data-console]');
 const board1 = document.querySelector('[data-board-1]');
 const board2 = document.querySelector('[data-board-2]');
 const boardTurnQueue = [];
+const rotateShipBtn = document.getElementById('rotate-Ship-Btn');
 const endGameModal = document.getElementById('end-game-modal');
 const playerChooseNameModal = document.getElementById('player-name-modal');
 const placeShipsModal = document.getElementById('place-ships-modal');
 const endGameForm = document.getElementById('endGameForm');
 const placeShipsBoard = document.querySelector('.placeShipsBoard');
+const playerChooseSubmitBtn = document.getElementById('playerChooseSubmitBtn');
+playerChooseSubmitBtn.disabled = true;
 // endGameModal.showModal();
 // playerChooseNameModal.showModal();
-placeShipsModal.showModal();
+// placeShipsModal.showModal();
 boardTurnQueue.push(board1, board2);
 
 let boardTurn = boardTurnQueue.shift();
@@ -111,7 +114,7 @@ export function renderGameBoard() {
 }
 const prepareRound = (element) => {
   const coords = [Number(element.dataset.x), Number(element.dataset.y)];
-  console.log('opponent board', game.getOppenent().gameBoard);
+  // console.log('opponent board', game.getOppenent().gameBoard);
   game.playRound(coords);
   // eslint-disable-next-line no-param-reassign
   element.dataset.targetActive = 'false'; // visually will disable the cursor pointer
@@ -163,7 +166,7 @@ const renderPlaceShipsBoard = () => {
 };
 const setConsole = (str) => {
   gameConsole.textContent = str;
-  console.log('set new message in console');
+  // console.log('set new message in console');
 };
 const gameWin = () => {
   // block all click events to board;
@@ -179,7 +182,7 @@ const renderBoardSquare = ({ coords, status }) => {
   const [x, y] = coords;
   // eslint-disable-next-line quotes
   const square = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
-  console.log('changing this square', square);
+  // console.log('changing this square', square);
   if (status) {
     square.dataset.hit = 'true';
     return;
@@ -224,21 +227,32 @@ const pbcb = (e) => {
     return;
   }
   const filtered = [...affectedSq].filter((sq) => !sq.classList.contains('placed'));
-  console.log('filtered', filtered);
   if (filtered.length !== game.getPlayer1CurrentShipLength()) {
     console.log('not placing');
     return;
   }
-  console.log('Current Ship with Length:', game.getPlayer1CurrentShipLength());
-  console.log('game variable arr', game.testP1Ships);
+  const coordinates = [];
+  // console.log('Current Ship with Length:', game.getPlayer1CurrentShipLength());
+  // console.log('game variable arr', game.p1Ships);
   filtered.forEach((el) => {
     el.classList.remove('hover-preview');
     el.classList.add('placed');
     // currentShip = game.testP1Ships.shift();
-    console.log('adding', el);
+    coordinates.push([Number(el.dataset.x), Number(el.dataset.y)]);
   });
-  game.testP1Ships.shift();
-  console.log(game.testP1Ships.length, 'ships left');
+  // console.log('adding', coordinates);
+  const currentShip = game.p1Ships.shift();
+  coordinates.forEach((coord) => {
+    game.getPlayerTurn().gameBoard.placeShip(coord, currentShip);
+  });
+  // console.log('player1 board =>', game.getPlayerTurn().gameBoard.board);
+  // console.log('placed ships', game.player1PlacedShips);
+  console.log(game.p1Ships.length, 'ships left');
+  isShipsHorizontal = true;
+  if (!game.p1Ships.length) {
+    playerChooseSubmitBtn.disabled = false;
+    rotateShipBtn.disabled = true;
+  }
 };
 const renderShipBoardClick = () => {
   const affectedSq = document.querySelectorAll('.hover-preview');
@@ -247,13 +261,24 @@ const renderShipBoardClick = () => {
     sq.addEventListener('click', pbcb, true);
   });
 };
+const updatePlayer1BoardWithShips = () => {
+  game.player1PlacedShips.forEach((shipCoord) => {
+    const [x, y] = shipCoord;
+    const boardSquare = board1.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+    boardSquare.classList.add('ship');
+  });
+};
 const initializeEventListeners = () => {
   // add click events to each square in board1 and board 1
   const board1Squares = board1.querySelectorAll('[data-target-active="true"]');
   const board2Squares = board2.querySelectorAll('[data-target-active="true"]');
   const continueBtn = document.getElementById('playerNameModalContinueBtn');
   const placeShipsboardSquares = placeShipsBoard.querySelectorAll('.pSquare');
+  const playerChooseForm = document.getElementById('choosePlayerNameForm');
 
+  rotateShipBtn.addEventListener('click', () => {
+    isShipsHorizontal = !(isShipsHorizontal);
+  });
   board1Squares.forEach((square) => {
     square.addEventListener('click', prepareRoundCB, true);
   });
@@ -265,14 +290,29 @@ const initializeEventListeners = () => {
     document.location.reload();
   });
   continueBtn.addEventListener('click', () => {
-    playerChooseNameModal.closeModal();
+    playerChooseNameModal.close();
     placeShipsModal.showModal();
+  });
+  playerChooseForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // updated form;
+    // eslint-disable-next-line dot-notation
+    const player1Name = playerChooseForm.elements['playerNameInputBox'].value || 'Player 1';
+    console.log(`${player1Name}'s turn to begin the round`);
+    game.setPlayerName(game.player1, player1Name);
+    setConsole(`${game.getPlayerTurn().getName()}'s turn.`);
+    console.log('form submitted');
+    playerChooseForm.reset();
+    placeShipsModal.close();
+    updatePlayer1BoardWithShips();
   });
   // 3 3;
   placeShipsboardSquares.forEach((square) => {
     square.addEventListener('mouseover', (e) => {
       // const shipLength = game.testP1Ships[0]?.getLength() ?? 0;
-      if (game.getPlayer1CurrentShipLength() === 0) return;
+      if (game.getPlayer1CurrentShipLength() === 0) {
+        return;
+      }
 
       // const currentSquare = e.target;
       // const targetX = Number(e.target.dataset.x);
@@ -281,7 +321,7 @@ const initializeEventListeners = () => {
       // affectedSquares.push(currentSquare);
       // const filteredArr = [];
 
-      isShipsHorizontal = true; // test
+      // isShipsHorizontal = true; // test
       const anchorLetter = (isShipsHorizontal) ? 'x' : 'y';
       const anchorNum = (isShipsHorizontal) ? Number(e.target.dataset.x) : Number(e.target.dataset.y);
       const oppositeLetter = (anchorLetter === 'x') ? 'y' : 'x';
@@ -343,14 +383,11 @@ export const initialize = () => {
   // renderShipBoardClick();
   initializeEventListeners();
   disableEscOnModals();
-  // showStartingModal();
+  showStartingModal();
   console.log('Done rendering DOM GameBoard');
   // console.log('player turn =>', game.getPlayerTurn());
   // show modal -> selects if PvP or PvC, then select names, then select ship positions
   // process the data from modal
-  // update console on instructions
-  game.setPlayerName(game.player1, 'Big One');
-  setConsole(`${game.getPlayerTurn().getName()}'s turn.`);
 };
 // Any Event listeners that need to be initialize before initilize() is set below
 pubSub.subscribe('playerNameChanged', updatePlayerNameBanners);
