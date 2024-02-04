@@ -34,6 +34,8 @@ boardTurn.style.pointerEvents = 'none';
 // Functions
 // render player 1 and player 2 boards with
 function prepareRoundCB(e) {
+  // board1.style.pointerEvents = 'none';
+  board2.style.pointerEvents = 'none';
   prepareRound(e.target);
 }
 export function renderGameBoardHeader(size, boardLeft, boardRight) {
@@ -212,12 +214,20 @@ const updatePlayerNameBanners = () => {
 const switchBoardTurn = () => {
   console.log('switching turns');
   // set current board to allow clicks
+  // if (game.getPlayerTurn() instanceof AIPlayer) {
+  //   boardTurn.style.pointerEvents = 'none';
+  // }
+  // boardTurn.style.pointerEvents = 'auto';
+  // console.log('boardTurn', boardTurn);
   boardTurn.style.pointerEvents = 'auto';
+  if (game.getPlayerTurn() instanceof AIPlayer) {
+    // console.log('ai player');
+    board1.style.pointerEvents = 'none';
+  }
   // switch turns via queue
   boardTurnQueue.push(boardTurn);
   boardTurn = boardTurnQueue.shift();
   // set new board to disable clicks
-  boardTurn.style.pointerEvents = 'none';
   setConsole(`${game.getPlayerTurn().getName()}'s Turn`);
 };
 const pbcb = (e) => {

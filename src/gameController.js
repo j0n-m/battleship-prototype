@@ -188,7 +188,7 @@ function setAINextMoves(x, y) {
   });
   while (possibleMoveset.length !== 0) {
     const move = possibleMoveset.shift();
-    console.log(`adding ${move} to ${getPlayerTurn().getName()}'s next moves`);
+    // console.log(`adding ${move} to ${getPlayerTurn().getName()}'s next moves`);
     getPlayerTurn().gameBoard.nextMoves.push(move);
   }
 }
@@ -298,7 +298,7 @@ export const playRound = async (coords) => {
     return;
   }
   // switch turns;
-  await sleep(1500); // miliseconds delay before switching rounds;
+  await sleep(1000); // miliseconds delay before switching rounds;
 
   switchPlayerTurn();
 
